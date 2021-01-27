@@ -19,8 +19,10 @@ class Agent:
         for _ in range(count):
             action = self.env.action_space.sample()
             new_state, reward, is_done, _ = self.env.step(action)
+
             self.rewards[(self.state, action, new_state)] = reward
             self.transits[(self.state, action)][new_state] += 1
+
             self.state = self.env.reset() if is_done else new_state
 
     def select_action(self, state):
@@ -57,17 +59,15 @@ class Agent:
     def value_iteration(self):
         for state in range(self.env.observation_space.n):
             for action in range(self.env.action_space.n):
-                action_value = 0.0
                 target_counts = self.transits[(state, action)]
                 total = sum(target_counts.values())
+                action_value = 0.0
 
                 for tgt_state, count in target_counts.items():
-                    key = (state, action, tgt_state)
-                    reward = self.rewards[key]
+                    reward = self.rewards[(state, action, tgt_state)]
                     best_action = self.select_action(tgt_state)
 
                     val = reward + GAMMA * self.values[(tgt_state, best_action)]
-
                     action_value += (count / total) * val
                 
                 self.values[(state, action)] = action_value

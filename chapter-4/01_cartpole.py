@@ -110,6 +110,7 @@ if __name__ == "__main__":
 
         if reward_m > 199:
             print("Solved!")
+            torch.save(net.state_dict(), "cartpole.pth")
             break
 
     writer.close()
